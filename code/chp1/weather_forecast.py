@@ -1,10 +1,13 @@
-
 import json
+import re
 
 import pandas as pd
 import requests
 
+# 配置API地址
 URL = 'http://wthrcdn.etouch.cn/weather_mini'
+# 配置处理风力的正则表达式
+FENGLI_REX = re.compile('[0-9]*[<-][0-9]*级')
 
 
 def get_city_forecast(city):
@@ -16,6 +19,11 @@ def get_city_forecast(city):
     response = requests.get(URL, params={'city': city})
     content = json.loads(response.content)
     df = pd.DataFrame(content['data']['forecast'])
+    # 对形如<![CDATA[3-4级]]>风力数据进行处理，保留其中的级数
+    df['fengli'] = df['fengli'].map(lambda x: FENGLI_REX.findall(x)[0])
+    # 处理高温和低温的字样
+    df['high'] = df['high'].map(lambda x: x.replace('高温 ', ''))
+    df['low'] = df['low'].map(lambda x: x.replace('低温 ', ''))
     df['city'] = city
     
     return df
