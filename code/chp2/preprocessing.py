@@ -61,7 +61,7 @@ class Preprocessor:
         self.column_transformer = ColumnTransformer(
             [
                 # 对类别型数据做One-Hot编码
-                ('one-hot', OneHotEncoder(), cat_cols),
+                ('one-hot', OneHotEncoder(handle_unknown='ignore'), cat_cols),
                 # 对除了数值类型做标准化
                 ('scale', StandardScaler(), num_cols),
                 # 对age字段做离散化，转化为5个类别
